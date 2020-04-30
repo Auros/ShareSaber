@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShareSaber-API", "ShareSaber-API\ShareSaber-API.csproj", "{A3131E7B-058F-4A88-8479-07A12B4776F8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A3131E7B-058F-4A88-8479-07A12B4776F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3131E7B-058F-4A88-8479-07A12B4776F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3131E7B-058F-4A88-8479-07A12B4776F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3131E7B-058F-4A88-8479-07A12B4776F8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8B8A34FE-912C-4317-B369-6E42AA2988D7}
+	EndGlobalSection
+EndGlobal
