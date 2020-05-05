@@ -1,0 +1,11 @@
+﻿<bg xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd">
+  <vertical child-control-height="false">
+    <horizontal bg="panel-top" pad-left="15" pad-right="15" horizontal-fit="PreferredSize">
+      <text text="No Files" align="Center" font-size="10"/>
+    </horizontal>
+    <horizontal bg="round-rect-panel" pad="4">
+      <text text="There are no files found by the given key." align="Center"/>
+    </horizontal>
+    <button text="Go Back" on-click="go-back"/>
+  </vertical>
+</bg>

@@ -1,0 +1,13 @@
+﻿{
+  "$schema": "https://raw.githubusercontent.com/beat-saber-modding-group/BSIPA-MetadataFileSchema/master/Schema.json",
+  "id": "ShareSaber",
+  "name": "ShareSaber",
+  "author": "Auros",
+  "version": "1.0.0",
+  "description": "Download maps uploaded by people easily in game",
+  "gameVersion": "1.9.0",
+  "dependsOn": {
+
+  },
+  "features": []
+}

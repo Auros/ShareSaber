@@ -1,0 +1,450 @@
+﻿@using System.IO;
+@using System.Linq;
+@using System.Net.Http
+@using ShareSaber.Models;
+@using System.Net.Http.Headers;
+
+@using Blazor.FileReader;
+
+@inject IFileReaderService fileReaderService;
+@inject NavigationManager Nav
+@inject HttpClient Http
+@inject State State
+
+
+@page "/profile"
+
+<br />
+<section class="container">
+
+    <div class="@(modalActive ? "modal is-active" : "modal")">
+        <div class="modal-background" @onclick="ModalClose"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Status</p>
+                <button class="delete" aria-label="close" @onclick="ModalClose"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="content">
+                    <p>@result</p>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button" @onclick="ModalClose">Continue</button>
+            </footer>
+        </div>
+    </div>
+
+    <div class="box">
+        <h1 class="title">@(profileStatus)</h1>
+    </div>
+    @if (State.Token != null)
+    {
+        <div class="box">
+            <div class="columns">
+                <div class="column is-one-third">
+                    <figure class="image is-square">
+                        <img src="@(State.Discord.Avatar + "?size=512")">
+                    </figure>
+                </div>
+                @if (State.User.Role != ShareSaberRole.None && !State.User.Banned)
+                {
+                    <div class="column">
+                        <div class="field">
+                            <label class="label">Upload Name</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="Freedom Dive v4 (Revision 24)" @bind="UploadName" @bind:event="oninput">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="checkbox">
+                                <input type="checkbox" @bind="PasswordSelected" @bind:event="oninput">
+                                Password Protected
+                            </label>
+                        </div>
+                        @if (PasswordSelected)
+                        {
+                            <div class="field">
+                                <label class="label">Password</label>
+                                <div class="control">
+                                    <input class="input" type="text" placeholder="despacito55" @bind="Password" @bind:event="oninput">
+                                </div>
+                            </div>
+                        }
+                        <div class="field">
+                            <label class="checkbox">
+                                <input type="checkbox" @bind="LimitSelected" @bind:event="oninput">
+                                Limit Downloads
+                            </label>
+                        </div>
+                        @if (LimitSelected)
+                        {
+                            <div class="field">
+                                <label class="label">Maximum Downloads</label>
+                                <div class="control">
+                                    <input class="input" type="number" placeholder="10" @bind="Limit" @bind:event="oninput">
+                                </div>
+                            </div>
+                        }
+                        <div class="field">
+                            <div class="file is-boxed is-primary has-name">
+                                <label class="file-label">
+                                    <input class="file-input" type="file" name="file-data" @ref="inputElement" @onchange="FileChanged">
+                                    <span class="file-cta">
+                                        <span class="file-icon">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <span class="file-label">
+                                            Upload file…
+                                        </span>
+                                    </span>
+                                    <span class="file-name">@fileName</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="buttons">
+                            <button class="button is-danger" @onclick="ResetInputs">Reset</button>
+                            <button class="button is-success" @onclick="UploadPushed" disabled="@IsUploadDisabled">Upload</button>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="column">
+                        <h3 class="subtitle has-text-danger">
+                            You cannot upload.
+                        </h3>
+                    </div>
+                }
+                <div class="column">
+                    <div class="content">
+                        <ul>File Size Maximum is 15 MB</ul>
+                        <ul>Zip files only</ul>
+                        <ul>Map data must be at the root of the zip</ul>
+                    </div>
+                </div>
+
+                @if (State.User.Role == ShareSaberRole.Admin || State.User.Role == ShareSaberRole.Owner)
+                {
+                    <div class="column">
+                        <div class="field">
+                            <label class="label">Target User</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="218571218545016832" @bind="TargetUser" @bind:event="oninput">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Role</label>
+                            <div class="control">
+                                <input class="input" type="number" placeholder="1" @bind="TargetRole" @bind:event="oninput">
+                            </div>
+                        </div>
+                        <div class=" buttons">
+                            <button class="button is-success is-light" @onclick="UpdateUser">Update</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="content is-small">
+                <h1>Your Uploaded Files</h1>
+                <hr />
+                @for (int i = 0; i < loadedFiles.Count / 3 + 1; i++)
+                {
+                    <div class="columns">
+                        @for (int t = i * 3; t < i * 3 + 3 && t < loadedFiles.Count; t++)
+                        {
+                            var file = loadedFiles[t];
+                            <div class="column">
+                                <h3>@(file.Name)</h3>
+                                <p>Key: @(file.Key)</p>
+                                <p>Password Protected: @(file.HasPassword ? "Yes" : "No")</p>
+                                <p>Download Limit: @(file.UnlimitedDownloads ? "No" : "Yes")</p>
+                                <p>Download Count: @(file.Downloads)</p>
+                                @if (!file.UnlimitedDownloads)
+                                {
+                                    <p>Maximum Downloads: @(file.MaxDownloads)</p>
+                                }
+                                <p>Uploaded: @(file.Uploaded.ToLocalTime().ToString())</p>
+                            </div>
+                        }
+                    </div>
+                    <hr />
+                }
+            </div>
+        </div>
+
+
+    }
+    <br />
+    <br />
+</section>
+
+@code {
+
+    private string _uploadName = "";
+    private string UploadName
+    {
+        get => _uploadName;
+        set
+        {
+            _uploadName = value;
+            OnInput();
+        }
+    }
+
+    private bool _passwordSelected = false;
+    private bool PasswordSelected
+    {
+        get => _passwordSelected;
+        set
+        {
+            _passwordSelected = value;
+            OnInput();
+        }
+    }
+
+    private string _password = "";
+    private string Password
+    {
+        get => _password;
+        set
+        {
+            _password = value;
+            OnInput();
+        }
+    }
+
+    private bool _limitSelected = false;
+    private bool LimitSelected
+    {
+        get => _limitSelected;
+        set
+        {
+            _limitSelected = value;
+            OnInput();
+        }
+    }
+
+    private int _limit = 10;
+    private int Limit
+    {
+        get => _limit;
+        set
+        {
+            _limit = value;
+            OnInput();
+        }
+    }
+
+    private int _role = 1;
+    private int TargetRole
+    {
+        get => _role;
+        set
+        {
+            _role = value;
+        }
+    }
+
+    private string _user = "";
+    private string TargetUser
+    {
+        get => _user;
+        set
+        {
+            _user = value;
+        }
+    }
+
+    ElementReference inputElement;
+    IFileReaderRef fileReaderReference;
+    private string result = "";
+    private bool modalActive = false;
+    private string profileStatus = "Authorizing...";
+    private string fileName = "No File Selected";
+    private bool IsUploadDisabled { get; set; } = true;
+
+    private List<BSFile> loadedFiles = new List<BSFile>();
+
+
+    private void OnInput()
+    {
+        if (string.IsNullOrWhiteSpace(UploadName) ||
+            fileName == "No File Selected" ||
+            (PasswordSelected == true && string.IsNullOrWhiteSpace(Password)))
+            IsUploadDisabled = true;
+        else
+            IsUploadDisabled = false;
+
+        StateHasChanged();
+    }
+
+    private void ResetInputs()
+    {
+        PasswordSelected = false;
+        LimitSelected = false;
+        Password = "";
+        Limit = 10;
+        UploadName = "";
+
+        fileReaderReference.ClearValue();
+        fileName = "No File Selected";
+
+        OnInput();
+    }
+
+    private async void FileChanged()
+    {
+        var mainFile = await fileReaderReference.EnumerateFilesAsync();
+        fileName = (await mainFile.FirstOrDefault()?.ReadFileInfoAsync()).Name;
+        OnInput();
+    }
+
+    private void ModalClose()
+    {
+        modalActive = false;
+        StateHasChanged();
+    }
+
+    protected override void OnAfterRender(bool isFirstRender)
+    {
+        fileReaderReference = fileReaderService.CreateReference(inputElement);
+    }
+
+    private async void UploadPushed()
+    {
+        try
+        {
+            var mainFile = (await fileReaderReference.EnumerateFilesAsync()).FirstOrDefault();
+            if (mainFile == null)
+                return;
+            var multipart = new MultipartFormDataContent();
+            multipart.Add(new StreamContent(await mainFile.OpenReadAsync(), 8192), "file", (await mainFile.ReadFileInfoAsync()).Name);
+            multipart.Add(new StringContent(UploadName), "name");
+            multipart.Add(new StringContent("Map"), "type");
+            multipart.Add(new StringContent($"{!LimitSelected}"), "Unlimited");
+            multipart.Add(new StringContent($"{PasswordSelected}"), "Protected");
+            multipart.Add(new StringContent(Password), "Password");
+            multipart.Add(new StringContent(Limit.ToString()), "Max");
+
+            var req = new HttpRequestMessage()
+            {
+                Method = new HttpMethod("POST"),
+                RequestUri = new Uri(Program.APIURL + "api/upload"),
+                Content = multipart
+            };
+            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", State.Token);
+
+            modalActive = true;
+            result = "Uploading...";
+
+            var res = await Http.SendAsync(req);
+            result = $"{res.StatusCode} - {await res.Content.ReadAsStringAsync()}";
+
+            modalActive = true;
+            ResetInputs();
+            LoadUserFiles();
+        }
+        catch
+        {
+            result = "Connection Error";
+            modalActive = true;
+            StateHasChanged();
+        }
+
+    }
+
+    private async void UpdateUser()
+    {
+        var req = new HttpRequestMessage()
+        {
+            Method = new HttpMethod("POST"),
+            RequestUri = new Uri(Program.APIURL + $"api/admin/updateuser"),
+            Content = JsonContent.Create<QueryUserUpdate>(new QueryUserUpdate() { Target = TargetUser, Role = TargetRole })
+        };
+        req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", State.Token);
+
+        modalActive = true;
+        result = "Updating";
+
+        var resp = await Http.SendAsync(req);
+        if (resp.StatusCode == System.Net.HttpStatusCode.NoContent)
+            result = "Update Successful";
+        else
+            result = "Error updating user";
+
+
+
+        StateHasChanged();
+    }
+
+    public class QueryUserUpdate
+    {
+        public string Target { get; set; }
+        public int Role { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+        if (State.Token == null)
+        {
+            if (!string.IsNullOrEmpty(GetQueryParm("code")))
+            {
+
+                var response = await Http.GetFromJsonAsync<State>(Program.APIURL + "api/discord/authorize?code=" + GetQueryParm("code"));
+                if (response != null)
+                {
+                    State.User = response.User;
+                    State.Discord = response.Discord;
+                    State.Token = response.Token;
+                    Nav.NavigateTo("/profile");
+                    profileStatus = "Logged In as " + State.Discord.Username + "#" + State.Discord.Discriminator;
+
+                    LoadUserFiles();
+                }
+                else
+                {
+                    profileStatus = "An error has occured. Please Try Again";
+                }
+            }
+            else
+            {
+                Nav.NavigateTo(Program.APIURL + "api/discord/auth", true);
+            }
+        }
+        else
+        {
+            profileStatus = "Logged In as " + State.Discord.Username + "#" + State.Discord.Discriminator;
+
+            LoadUserFiles();
+        }
+    }
+
+    private async void LoadUserFiles()
+    {
+        var req = new HttpRequestMessage()
+        {
+            Method = new HttpMethod("GET"),
+            RequestUri = new Uri(Program.APIURL + "api/files/uploaded")
+        };
+        req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", State.Token);
+
+        var resp = await Http.SendAsync(req);
+        var data = await resp.Content.ReadFromJsonAsync<List<BSFile>>();
+        loadedFiles = data.OrderByDescending(d => d.Uploaded).ToList();
+        StateHasChanged();
+    }
+
+    string GetQueryParm(string parmName)
+    {
+        var uriBuilder = new UriBuilder(Nav.Uri);
+        var q = System.Web.HttpUtility.ParseQueryString(uriBuilder.Query);
+        return q[parmName] ?? "";
+    }
+
+}

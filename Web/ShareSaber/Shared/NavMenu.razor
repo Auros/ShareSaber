@@ -1,0 +1,86 @@
+﻿@using ShareSaber.Models;
+
+@inject State State;
+@inject NavigationManager Nav
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+
+    <div class="container">
+        <div class="navbar-brand">
+            <div class="navbar-item">
+                <img src="/sharesaber.png" width="112" height="28">
+            </div>
+            <a role="button" aria-label="menu" aria-expanded="false" data-target="mainNavbar"
+               class="@(navbarActive ? "navbar-burger burger is-active" : "navbar-burger burger")"
+               @onclick="@(e => navbarActive = !navbarActive)">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+        <div id="mainNavbar"
+             class="@(navbarActive ? "navbar-menu is-active" : "navbar-menu")">
+            <div class="navbar-start">
+                <NavLink class="navbar-item" href="">
+                    Home
+                </NavLink>
+                <NavLink class="navbar-item" href="about">
+                    About
+                </NavLink>
+            </div>
+            <div class="navbar-end">
+
+
+                @if (State.Token != null)
+                {
+                    <div class="navbar-item">
+                        <div class="buttons">
+                            <NavLink class="button is-primary" href="profile">
+                                <strong>Auros</strong>
+                            </NavLink>
+                            <a class="button is-light" @onclick="Logout">
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="navbar-item">
+                        <NavLink class="button is-primary" href="profile">
+                            <strong>Log In</strong>
+                        </NavLink>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+
+</nav>
+
+@code {
+
+    private void StateChange()
+    {
+        this.StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        State.pageUpdated = StateChange;
+    }
+
+    private void Logout()
+    {
+        State.Token = null;
+        State.User = null;
+        State.Discord = null;
+
+        Nav.NavigateTo("/");
+    }
+
+    private bool navbarActive = false;
+}
