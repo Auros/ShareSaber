@@ -321,6 +321,7 @@
             var mainFile = (await fileReaderReference.EnumerateFilesAsync()).FirstOrDefault();
             if (mainFile == null)
                 return;
+
             var multipart = new MultipartFormDataContent();
             multipart.Add(new StreamContent(await mainFile.OpenReadAsync(), 8192), "file", (await mainFile.ReadFileInfoAsync()).Name);
             multipart.Add(new StringContent(UploadName), "name");
@@ -340,6 +341,7 @@
 
             modalActive = true;
             result = "Uploading...";
+            StateHasChanged();
 
             var res = await Http.SendAsync(req);
             result = $"{res.StatusCode} - {await res.Content.ReadAsStringAsync()}";

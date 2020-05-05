@@ -6,6 +6,7 @@
 Files/
 bulma-0.8.2/
 Styles/
+*.css
 
 # User-specific files
 *.rsuser
@@ -355,3 +356,5 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+API/ShareSaber-API/appsettings.json
+API/ShareSaber-API/appsettings.Development.json
