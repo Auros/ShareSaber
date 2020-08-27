@@ -55,7 +55,9 @@ namespace ShareSaber_API
                 });
             });
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -87,8 +89,6 @@ namespace ShareSaber_API
 
             app.UseAuthentication();
             app.UseAuthorization();
-
-           
 
             var path = Path.Combine(Directory.GetCurrentDirectory(), "Files");
             if (!Directory.Exists(path))
