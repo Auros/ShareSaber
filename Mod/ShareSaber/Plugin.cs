@@ -12,7 +12,7 @@ namespace ShareSaber
         internal static IPALogger Log { get; private set; }
         internal static Plugin Instance { get; private set; }
         internal static WebClient Client { get; private set; }
-        internal static Version Version => new Version("1.0.0");
+        internal static Version Version => new Version("1.0.1");
         internal static MenuButton MenuButton { get; private set; }
         internal static string ShareSaberAPIURL { get; } = "https://sharesaber.com/";
         internal static ShareSaberFlowCoordinator ShareSaberFlow { get; private set; }

@@ -51,7 +51,7 @@ namespace ShareSaber_API.Controllers
                 try
                 {
                     using ZipArchive zipArchive = new ZipArchive(body.File.OpenReadStream());
-                    var infoData = zipArchive.Entries.Where(x => x.Name == "info.dat").FirstOrDefault();
+                    var infoData = zipArchive.Entries.Where(x => x.Name.ToLower() == "info.dat").FirstOrDefault();
 
                     // Confirming the map is at the root of the zip.
                     if (infoData == null)
